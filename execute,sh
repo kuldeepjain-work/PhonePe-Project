@@ -1,0 +1,28 @@
+#!/bin/bash
+
+# Array of minion IDs, replace with your actual minion IDs or use '*' for all minions
+minions=$(salt-key -L | grep -vE ':' | sort)
+
+for minion in $minions; do
+    echo "Fetching system information for: $minion"
+    echo "=========================================="
+
+    # Collect and display each piece of information specifically for this minion
+    datetime=$(salt "$minion" cmd.run "date")
+    system_load=$(salt "$minion" cmd.run "uptime | awk -F'[a-z]:' '{ print \$2}'")
+    disk_usage=$(salt "$minion" cmd.run "df / | awk 'END{print \$5 \" of \" \$2}'")
+    memory_usage=$(salt "$minion" cmd.run "free | grep Mem | awk '{printf(\"%.2f%%\", \$3/\$2 * 100)}'")
+    process_count=$(salt "$minion" cmd.run "ps -e | wc -l")
+    users_logged_in=$(salt "$minion" cmd.run "who | wc -l")
+    ipv4_address=$(salt "$minion" cmd.run "ip addr show enp0s1 | grep 'inet ' | awk '{print \$2}' | cut -d'/' -f1")
+
+    echo "Last updated for the given minion: $datetime"
+    echo "System load: $system_load"
+    echo "Usage of /: $disk_usage"
+    echo "Memory usage: $memory_usage"
+    echo "Swap usage: $swap_usage"
+    echo "Processes: $process_count"
+    echo "Users logged in: $users_logged_in"
+    echo "IPv4 address for the minion: $ipv4_address"
+    echo "=========================================="
+done 

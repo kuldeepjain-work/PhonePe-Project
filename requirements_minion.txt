@@ -1,0 +1,4 @@
+fastapi==0.115.8
+salt==3006.6
+pytest-testinfra==7.0.0
+pytest==5.4.3
